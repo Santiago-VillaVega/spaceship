@@ -16,14 +16,17 @@
     var gameover = true;
     var score = 0;
     var multishot = 1;
-    var elapsedTime = 0;
+    var aTimer = 0;
+    var bgTimer = 0;
     var player = new Rectangle(90, 280, 10, 10, 0, 3);
     var shots = [];
     var enemies = [];
     var powerups = [];
     var messages = [];
     var spritesheet = new Image();
+    var background = new Image();
     spritesheet.src = 'assets/spritesheet.png';
+    background.src = 'assets/nebula.jpg';
 
     function random(max) {
         return ~~(Math.random() * max);
@@ -150,6 +153,8 @@
                 } 
             }
 
+            
+
             // Move Enemies
             for (var i = 0, l = enemies.length; i < l; i++) {
                 if (enemies[i].timer > 0)
@@ -214,10 +219,13 @@
                 }
             }
 
-            // Elapsed time
-            elapsedTime += deltaTime;
-            if (elapsedTime > 3600)
-                elapsedTime -= 3600;
+            // Timer
+            aTimer += deltaTime;
+            if (aTimer > 3600)
+                aTimer -= 3600;
+            bgTimer++;
+            if (bgTimer > 0)
+                bgTimer -= 300;    
 
             // Damaged
             if (player.timer > 0)
@@ -237,19 +245,24 @@
     }
 
     function paint(ctx) {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (background.width) {
+            ctx.drawImage(background, 0, bgTimer);
+            ctx.drawImage(background, 0, 300 + bgTimer);
+        } else {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
 
         ctx.strokeStyle = '#0f0';
         if (player.timer % 2 == 0)
             //player.fill(ctx);
-            player.drawImageArea(ctx, spritesheet, (~~(elapsedTime * 10) % 3) * 10, 0, 10, 10);
+            player.drawImageArea(ctx, spritesheet, (~~(aTimer * 10) % 3) * 10, 0, 10, 10);
         for (var i = 0, l = powerups.length; i < l; i++) {
             if (powerups[i].type == 1) {
                 ctx.strokeStyle = '#f90';
                 powerups[i].drawImageArea(ctx, spritesheet, 50, 0, 10, 10);
             } else {
-                ctx.fillStyle = '#cc6';
+                ctx.strokeStyle = '#cc6';
                 powerups[i].drawImageArea(ctx, spritesheet, 60, 0, 10, 10);
             }    
             //powerups[i].fill(ctx);
@@ -267,7 +280,7 @@
         ctx.strokeStyle = '#f00';
         for (var i = 0, l = shots.length; i < l; i++)
             //shots[i].fill(ctx);
-            shots[i].drawImageArea(ctx, spritesheet, 70, (~~(elapsedTime * 10) % 2) * 5, 5, 5);
+            shots[i].drawImageArea(ctx, spritesheet, 70, (~~(aTimer * 10) % 2) * 5, 5, 5);
 
         ctx.fillStyle = '#fff';
         for (var i = 0, l = messages.length; i < l; i++)
